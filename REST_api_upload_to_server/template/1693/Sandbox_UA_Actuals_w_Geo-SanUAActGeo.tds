@@ -1,0 +1,343 @@
+<?xml version='1.0' encoding='utf-8'?>
+<datasource xmlns:ns0="http://www.tableausoftware.com/xml/user" formatted-name="Sandbox_UA_Actuals_w_Geo-SanUAActGeo" inline="true" source-platform="mac" version="9.1">
+  
+  <repository-location id="Sandbox_UA_Actuals_w_Geo-SanUAActGeo" path="datasources" revision="1.1" />
+  <connection class="mysql" dbname="advertiser_1693_tetris" odbc-native-protocol="yes" port="11107" server="p-iproxy01.use01.plat.priv" server-oauth="" source-charset="" username="read_tableau" workgroup-auth-mode="prompt">
+    <relation name="TuneBI_CSQL-SanUAActGeo" type="text">/* UA Actuals w/ Geo */
+
+SELECT c.date Date,
+ifnull(p.name, 'Organic') Partner,
+s.name as App,
+ifnull(cam.name, 'Non-Campaign') as Campaign,
+geo.country_name Country,
+geo.region_name Region,
+c.postal_code Postal_Code,
+ifnull(a.clicks, 0) Clicks,
+c.installs Installs,
+c.opens Opens,
+c.events Events,
+c.revenues_usd Revenue,
+ifnull(a.click_cost, 0) Click_Cost,
+c.install_costs Install_Cost
+FROM (
+	SELECT date(log_created) as date,
+	install_publisher_id,
+	site_id,
+	campaign_id,
+	country_code,
+	region_code,
+	postal_code,
+	sum(installs) as installs,
+	sum(opens) as opens,
+	sum(events) as events,
+	sum(revenues_usd) as revenues_usd,
+	sum(costs) as install_costs	
+	FROM log_conversions
+	WHERE advertiser_id = 3444
+	and debug_mode = 0 and test_profile_id = 0 and log_status = 'approved'
+	and log_created &gt;&gt;= &lt;[Parameters].[Parameter 3]&gt; and log_created &lt;&lt; date_add(&lt;[Parameters].[Parameter 2]&gt;, INTERVAL 1 DAY)
+	and log_created &lt;&lt; date_add(&lt;[Parameters].[Parameter 3]&gt;, INTERVAL 91 DAY)
+	GROUP BY 1,2,3,4,5,6,7
+	) c
+LEFT JOIN (
+	SELECT date(log_created) as date,
+	publisher_id,
+	site_id,
+	campaign_id,
+	country_code,
+	region_code,
+	postal_code,
+	sum(clicks) as clicks,
+	sum(costs) as click_cost
+	FROM log_attributables
+	WHERE advertiser_id = 3444
+	and log_type = 'click'
+	and debug_mode = 0 and test_profile_id = 0
+	and log_created &gt;&gt;= &lt;[Parameters].[Parameter 3]&gt; and log_created &lt;&lt; date_add(&lt;[Parameters].[Parameter 2]&gt;, INTERVAL 1 DAY)
+	and log_created &lt;&lt; date_add(&lt;[Parameters].[Parameter 3]&gt;, INTERVAL 91 DAY)
+	GROUP BY 1,2,3,4,5,6,7
+	) a ON a.date = c.date AND a.publisher_id = c.install_publisher_id AND a.site_id = c.site_id
+	AND a.campaign_id = c.campaign_id AND a.country_code = c.country_code
+	AND a.region_code = c.region_code AND a.postal_code = c.postal_code
+LEFT JOIN shared_tetris.publishers p on p.id = c.install_publisher_id
+LEFT JOIN (
+	SELECT id,name
+	FROM shared_tetris.sites
+	WHERE advertiser_id = 3444
+	) s ON s.id = c.site_id
+LEFT JOIN (
+	SELECT id, name
+	FROM shared_tetris.campaigns
+	WHERE advertiser_id = 3444
+	) cam ON cam.id = c.campaign_id
+LEFT JOIN ( 
+	select regions.name region_name,
+	countries.name country_name,
+	regions.code r_code,
+	countries.code c_code
+	from shared_tetris.regions join shared_tetris.countries 
+	on countries.id = country_id
+	) geo on geo.r_code = c.region_code and geo.c_code = c.country_code</relation>
+    <metadata-records>
+      <metadata-record class="column">
+        <remote-name>Date</remote-name>
+        <remote-type>7</remote-type>
+        <local-name>[Date]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Date</remote-alias>
+        <ordinal>1</ordinal>
+        <local-type>date</local-type>
+        <aggregation>Year</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_TYPE_DATE"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_TYPE_DATE"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Partner</remote-name>
+        <remote-type>130</remote-type>
+        <local-name>[Partner]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Partner</remote-alias>
+        <ordinal>2</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>40</width>
+        <contains-null>false</contains-null>
+        <collation charset="280" flag="1" name="LEN_RUS_S2" />
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_WVARCHAR"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_WCHAR"</attribute>
+          <attribute datatype="string" name="TypeIsVarchar">"true"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>App</remote-name>
+        <remote-type>130</remote-type>
+        <local-name>[App]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>App</remote-alias>
+        <ordinal>3</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>100</width>
+        <contains-null>true</contains-null>
+        <collation charset="280" flag="1" name="LEN_RUS_S2" />
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_WVARCHAR"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_WCHAR"</attribute>
+          <attribute datatype="string" name="TypeIsVarchar">"true"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Campaign</remote-name>
+        <remote-type>130</remote-type>
+        <local-name>[Campaign]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Campaign</remote-alias>
+        <ordinal>4</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>255</width>
+        <contains-null>false</contains-null>
+        <collation charset="280" flag="1" name="LEN_RUS_S2" />
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_WVARCHAR"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_WCHAR"</attribute>
+          <attribute datatype="string" name="TypeIsVarchar">"true"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Country</remote-name>
+        <remote-type>130</remote-type>
+        <local-name>[Country]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Country</remote-alias>
+        <ordinal>5</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>50</width>
+        <contains-null>true</contains-null>
+        <collation charset="280" flag="1" name="LEN_RUS_S2" />
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_WVARCHAR"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_WCHAR"</attribute>
+          <attribute datatype="string" name="TypeIsVarchar">"true"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Region</remote-name>
+        <remote-type>130</remote-type>
+        <local-name>[Region]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Region</remote-alias>
+        <ordinal>6</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>50</width>
+        <contains-null>true</contains-null>
+        <collation charset="280" flag="1" name="LEN_RUS_S2" />
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_WVARCHAR"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_WCHAR"</attribute>
+          <attribute datatype="string" name="TypeIsVarchar">"true"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Postal_Code</remote-name>
+        <remote-type>130</remote-type>
+        <local-name>[Postal_Code]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Postal_Code</remote-alias>
+        <ordinal>7</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>8</width>
+        <contains-null>true</contains-null>
+        <padded-semantics>true</padded-semantics>
+        <collation charset="280" flag="1" name="LEN_RUS_S2" />
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_WCHAR"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_WCHAR"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Clicks</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[Clicks]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Clicks</remote-alias>
+        <ordinal>8</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>32</precision>
+        <scale>0</scale>
+        <contains-null>false</contains-null>
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_DECIMAL"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_NUMERIC"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Installs</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[Installs]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Installs</remote-alias>
+        <ordinal>9</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>32</precision>
+        <scale>0</scale>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_DECIMAL"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_NUMERIC"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Opens</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[Opens]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Opens</remote-alias>
+        <ordinal>10</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>32</precision>
+        <scale>0</scale>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_DECIMAL"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_NUMERIC"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Events</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[Events]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Events</remote-alias>
+        <ordinal>11</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>32</precision>
+        <scale>0</scale>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_DECIMAL"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_NUMERIC"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Revenue</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[Revenue]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Revenue</remote-alias>
+        <ordinal>12</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>40</precision>
+        <scale>5</scale>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_DECIMAL"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_NUMERIC"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Click_Cost</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[Click_Cost]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Click_Cost</remote-alias>
+        <ordinal>13</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>40</precision>
+        <scale>5</scale>
+        <contains-null>false</contains-null>
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_DECIMAL"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_NUMERIC"</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class="column">
+        <remote-name>Install_Cost</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[Install_Cost]</local-name>
+        <parent-name>[TuneBI_CSQL-SanUAActGeo]</parent-name>
+        <remote-alias>Install_Cost</remote-alias>
+        <ordinal>14</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>40</precision>
+        <scale>5</scale>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype="string" name="DebugRemoteType">"SQL_DECIMAL"</attribute>
+          <attribute datatype="string" name="DebugWireType">"SQL_C_NUMERIC"</attribute>
+        </attributes>
+      </metadata-record>
+    </metadata-records>
+  </connection>
+  <column datatype="string" name="[Country]" role="dimension" semantic-role="[Country].[ISO3166_2]" type="nominal">
+  </column>
+  <column datatype="integer" name="[Number of Records]" role="measure" type="quantitative" ns0:auto-column="numrec">
+    <calculation class="tableau" formula="1" />
+  </column>
+  <layout dim-ordering="alphabetic" dim-percentage="0.5" measure-ordering="alphabetic" measure-percentage="0.4" show-structure="true" />
+  <semantic-values>
+    <semantic-value key="[Country].[Name]" value="&quot;United States&quot;" />
+  </semantic-values>
+  <datasource-dependencies datasource="Parameters">
+    <column caption="Max_Date" datatype="date" name="[Parameter 2]" param-domain-type="any" role="measure" type="quantitative" value="#2015-10-14#">
+      <calculation class="tableau" formula="#2015-10-14#" />
+    </column>
+    <column caption="Min_Date" datatype="date" name="[Parameter 3]" param-domain-type="any" role="measure" type="quantitative" value="#2015-10-01#">
+      <calculation class="tableau" formula="#2015-10-01#" />
+    </column>
+  </datasource-dependencies>
+</datasource>

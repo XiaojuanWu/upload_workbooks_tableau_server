@@ -1,0 +1,429 @@
+<?xml version='1.0' encoding='utf-8' ?>
+
+<!-- build 10000.16.0917.1429                               -->
+<datasource formatted-name='Cohort_Revenue_Events-CohRevEve (copy)' inline='true' source-platform='mac' version='10.0' xmlns:user='http://www.tableausoftware.com/xml/user'>
+  <connection class='federated'>
+    <named-connections>
+      <named-connection caption='Re-Engagement_Executive_Summary-ReeExe' name='Cohort_Revenue_Events-CohRevEve (copy)leaf'>
+        <connection class='mysql' dbname='advertiser_1693_tetris' odbc-native-protocol='yes' port='11107' server='p-iproxy01.use01.plat.priv' server-oauth='' source-charset='' username='read_tableau' workgroup-auth-mode='prompt' />
+      </named-connection>
+    </named-connections>
+    <relation connection='Cohort_Revenue_Events-CohRevEve (copy)leaf' name='TuneBI_CSQL-SanRee' type='text'>select &#10;date,&#10;lower(ifnull(p.name, &apos;organic&apos;)) as Reengagement_Partner,&#10;s.name as App,&#10;se.name as Event,&#10;events,&#10;revenues,&#10;reengagements&#10;FROM (&#10;&#9;select date(reengagement_created) as date,&#10;&#9;reengagement_publisher_id,&#10;&#9;site_id,&#10;        site_event_id,&#10;&#9;sum(events) as events,&#10;&#9;sum(revenues_usd) as revenues,&#10;&#9;sum(if(reengagement_id = log_id, 1, 0)) as reengagements&#10;&#9;FROM log_conversions &#10;&#9;WHERE test_profile_id = 0 and debug_mode = 0 and log_status = &apos;approved&apos;&#10;        and reengagement_publisher_id &gt;&gt; 0&#10;        and reengagement_created &gt;&gt;= &lt;[Parameters].[Parameter 2]&gt;&#10;        and reengagement_created &lt;&lt; date_add(&lt;[Parameters].[Parameter 1]&gt;, interval 1 day)&#10;        AND reengagement_created &lt;&lt; DATE_ADD(&lt;[Parameters].[Parameter 2]&gt;, INTERVAL 91 DAY)&#10;&#9;and log_type in (&apos;open&apos;, &apos;event&apos;)&#10;&#9;group by 1,2,3,4&#10;&#9;) data&#10;LEFT JOIN shared_tetris.publishers p on p.id = data.reengagement_publisher_id&#10;LEFT JOIN shared_tetris.sites s on s.id = data.site_id&#10;LEFT JOIN shared_tetris.site_events as se on se.id = data.site_event_id</relation>
+    <refresh increment-key='' incremental-updates='false' />
+    <metadata-records>
+      <metadata-record class='column'>
+        <remote-name>date</remote-name>
+        <remote-type>7</remote-type>
+        <local-name>[date]</local-name>
+        <parent-name>[TuneBI_CSQL-SanRee]</parent-name>
+        <remote-alias>date</remote-alias>
+        <ordinal>1</ordinal>
+        <local-type>date</local-type>
+        <aggregation>Year</aggregation>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_TYPE_DATE&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_TYPE_DATE&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>Reengagement_Partner</remote-name>
+        <remote-type>130</remote-type>
+        <local-name>[Reengagement_Partner]</local-name>
+        <parent-name>[TuneBI_CSQL-SanRee]</parent-name>
+        <remote-alias>Reengagement_Partner</remote-alias>
+        <ordinal>2</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>255</width>
+        <contains-null>false</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>App</remote-name>
+        <remote-type>130</remote-type>
+        <local-name>[App]</local-name>
+        <parent-name>[TuneBI_CSQL-SanRee]</parent-name>
+        <remote-alias>App</remote-alias>
+        <ordinal>3</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>100</width>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>Event</remote-name>
+        <remote-type>130</remote-type>
+        <local-name>[Event]</local-name>
+        <parent-name>[TuneBI_CSQL-SanRee]</parent-name>
+        <remote-alias>Event</remote-alias>
+        <ordinal>4</ordinal>
+        <local-type>string</local-type>
+        <aggregation>Count</aggregation>
+        <width>100</width>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_WVARCHAR&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_WCHAR&quot;</attribute>
+          <attribute datatype='string' name='TypeIsVarchar'>&quot;true&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>events</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[events]</local-name>
+        <parent-name>[TuneBI_CSQL-SanRee]</parent-name>
+        <remote-alias>events</remote-alias>
+        <ordinal>5</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>32</precision>
+        <scale>0</scale>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_DECIMAL&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_NUMERIC&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>revenues</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[revenues]</local-name>
+        <parent-name>[TuneBI_CSQL-SanRee]</parent-name>
+        <remote-alias>revenues</remote-alias>
+        <ordinal>6</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>40</precision>
+        <scale>5</scale>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_DECIMAL&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_NUMERIC&quot;</attribute>
+        </attributes>
+      </metadata-record>
+      <metadata-record class='column'>
+        <remote-name>reengagements</remote-name>
+        <remote-type>131</remote-type>
+        <local-name>[reengagements]</local-name>
+        <parent-name>[TuneBI_CSQL-SanRee]</parent-name>
+        <remote-alias>reengagements</remote-alias>
+        <ordinal>7</ordinal>
+        <local-type>real</local-type>
+        <aggregation>Sum</aggregation>
+        <precision>23</precision>
+        <scale>0</scale>
+        <contains-null>true</contains-null>
+        <attributes>
+          <attribute datatype='string' name='DebugRemoteType'>&quot;SQL_DECIMAL&quot;</attribute>
+          <attribute datatype='string' name='DebugWireType'>&quot;SQL_C_NUMERIC&quot;</attribute>
+        </attributes>
+      </metadata-record>
+    </metadata-records>
+  </connection>
+  <aliases enabled='yes' />
+  <column datatype='string' name='[:Measure Names]' role='dimension' type='nominal'>
+    <aliases>
+      <alias key='&quot;[Cohort_Revenue_Events-CohRevEve (copy)].[sum:events:qk]&quot;' value='# of Re-Engagement Events' />
+      <alias key='&quot;[Cohort_Revenue_Events-CohRevEve (copy)].[sum:revenues:qk]&quot;' value='Re-Engagement Revenue' />
+    </aliases>
+  </column>
+  <column caption='Index' datatype='integer' name='[Calculation_2264888462169739265]' role='measure' type='quantitative'>
+    <calculation class='tableau' formula='INDEX()'>
+      <table-calc ordering-type='Rows' />
+    </calculation>
+  </column>
+  <column caption='Revenue per Re-Engagement' datatype='real' default-format='c&quot;$&quot;#,##0.00' name='[Calculation_2264888462176198658]' role='measure' type='quantitative'>
+    <calculation class='tableau' formula='sum([revenues])/SUM([reengagements])' />
+  </column>
+  <column caption='Events per Re-Engagement' datatype='real' default-format='n#,##0.00' name='[Calculation_2264888462176514051]' role='measure' type='quantitative'>
+    <calculation class='tableau' formula='sum([events])/sum([reengagements])' />
+  </column>
+  <column datatype='integer' name='[Number of Records]' role='measure' type='quantitative' user:auto-column='numrec'>
+    <calculation class='tableau' formula='1' />
+  </column>
+  <column caption='Re-Engagement Partner' datatype='string' name='[Reengagement_Partner]' role='dimension' type='nominal' />
+  <column caption='Re-Engagement Date' datatype='date' name='[date]' role='dimension' type='ordinal' />
+  <column caption='# of Events' datatype='real' default-format='n#,##0' name='[events]' role='measure' type='quantitative' />
+  <column caption='# of Re-Engagements' datatype='real' name='[reengagements]' role='measure' type='quantitative' />
+  <column caption='Revenue' datatype='real' default-format='c&quot;$&quot;#,##0' name='[revenues]' role='measure' type='quantitative' />
+  <column-instance column='[events]' derivation='Sum' name='[cum:sum:events:qk:2]' pivot='key' type='quantitative'>
+    <table-calc aggregation='Sum' ordering-field='[Cohort_Revenue_Events-CohRevEve (copy)].[period]' ordering-type='Field' type='CumTotal' />
+  </column-instance>
+  <column-instance column='[events]' derivation='Sum' name='[sum:events:qk]' pivot='key' type='quantitative' />
+  <column-instance column='[reengagements]' derivation='Sum' name='[sum:reengagements:qk]' pivot='key' type='quantitative' />
+  <column-instance column='[revenues]' derivation='Sum' name='[sum:revenues:qk]' pivot='key' type='quantitative' />
+  <extract count='-1' enabled='false' units='records'>
+    <connection class='dataengine' dbname='//hasfiles.sea1.office.priv/BI/Sandbox - Work in Progress/Users/brettt/Desktop/Cohort_Revenue_Events-CohRevEve copy 1.tde' schema='Extract' tablename='Extract' update-time='07/31/2015 08:06:21 PM'>
+      <relation name='Extract' table='[Extract].[Extract]' type='table' />
+      <calculations>
+        <calculation column='[Number of Records]' formula='1' />
+      </calculations>
+      <refresh increment-key='' incremental-updates='false'>
+        <refresh-event add-from-file-path='' increment-value='%null%' refresh-type='create' rows-inserted='18554' timestamp-start='2015-07-31 20:06:21.055' />
+      </refresh>
+      <metadata-records>
+        <metadata-record class='column'>
+          <remote-name>Number of Records</remote-name>
+          <remote-type>16</remote-type>
+          <local-name>[Number of Records]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>Number of Records</remote-alias>
+          <ordinal>0</ordinal>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <approx-count>1</approx-count>
+          <contains-null>false</contains-null>
+          <statistics>
+            <statistic aggregation='Min' datatype='integer'>1</statistic>
+            <statistic aggregation='Max' datatype='integer'>1</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>1</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;sint8&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>advertiser_id</remote-name>
+          <remote-type>2</remote-type>
+          <local-name>[advertiser_id]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>advertiser_id</remote-alias>
+          <ordinal>1</ordinal>
+          <family>TuneBI_CSQL-CohRevEve</family>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <approx-count>1</approx-count>
+          <contains-null>false</contains-null>
+          <statistics>
+            <statistic aggregation='Min' datatype='integer'>1693</statistic>
+            <statistic aggregation='Max' datatype='integer'>1693</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>2</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;sint16&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>date</remote-name>
+          <remote-type>133</remote-type>
+          <local-name>[date]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>date</remote-alias>
+          <ordinal>2</ordinal>
+          <family>TuneBI_CSQL-CohRevEve</family>
+          <local-type>date</local-type>
+          <aggregation>Year</aggregation>
+          <approx-count>16</approx-count>
+          <contains-null>false</contains-null>
+          <statistics>
+            <statistic aggregation='Min' datatype='date'>#2015-04-15#</statistic>
+            <statistic aggregation='Max' datatype='date'>#2015-04-30#</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (ordered)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>4</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>0</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>1</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;date&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>events</remote-name>
+          <remote-type>4</remote-type>
+          <local-name>[events]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>events</remote-alias>
+          <ordinal>3</ordinal>
+          <family>TuneBI_CSQL-CohRevEve</family>
+          <local-type>real</local-type>
+          <aggregation>Sum</aggregation>
+          <approx-count>982</approx-count>
+          <contains-null>false</contains-null>
+          <statistics>
+            <statistic aggregation='Min' datatype='real'>0.0</statistic>
+            <statistic aggregation='Max' datatype='real'>28298.0</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>4</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>4</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;float&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>name</remote-name>
+          <remote-type>129</remote-type>
+          <local-name>[name]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>name</remote-alias>
+          <ordinal>4</ordinal>
+          <family>TuneBI_CSQL-CohRevEve</family>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <approx-count>25</approx-count>
+          <scale>1</scale>
+          <width>40</width>
+          <contains-null>true</contains-null>
+          <collation flag='1' name='LEN_RUS_S2' />
+          <statistics>
+            <statistic aggregation='Min' datatype='string'>&quot;AdAction Interactive&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;web&quot;</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='string' name='DebugRemoteCollation'>&quot;en_US_CI&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>160</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>2</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>period</remote-name>
+          <remote-type>16</remote-type>
+          <local-name>[period]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>period</remote-alias>
+          <ordinal>5</ordinal>
+          <family>TuneBI_CSQL-CohRevEve</family>
+          <local-type>integer</local-type>
+          <aggregation>Sum</aggregation>
+          <approx-count>44</approx-count>
+          <contains-null>false</contains-null>
+          <statistics>
+            <statistic aggregation='Min' datatype='integer'>1</statistic>
+            <statistic aggregation='Max' datatype='integer'>44</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>1</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>3</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;sint8&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>revenue</remote-name>
+          <remote-type>5</remote-type>
+          <local-name>[revenue]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>revenue</remote-alias>
+          <ordinal>6</ordinal>
+          <family>TuneBI_CSQL-CohRevEve</family>
+          <local-type>real</local-type>
+          <aggregation>Sum</aggregation>
+          <approx-count>2981</approx-count>
+          <contains-null>false</contains-null>
+          <statistics>
+            <statistic aggregation='Min' datatype='real'>0.0</statistic>
+            <statistic aggregation='Max' datatype='real'>25022.400000000001</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;array&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>8</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;double&quot;</attribute>
+          </attributes>
+        </metadata-record>
+        <metadata-record class='column'>
+          <remote-name>site_name</remote-name>
+          <remote-type>129</remote-type>
+          <local-name>[site_name]</local-name>
+          <parent-name>[Extract]</parent-name>
+          <remote-alias>site_name</remote-alias>
+          <ordinal>7</ordinal>
+          <family>TuneBI_CSQL-CohRevEve</family>
+          <local-type>string</local-type>
+          <aggregation>Count</aggregation>
+          <approx-count>16</approx-count>
+          <scale>1</scale>
+          <width>100</width>
+          <contains-null>false</contains-null>
+          <collation flag='1' name='LEN_RUS_S2' />
+          <statistics>
+            <statistic aggregation='Min' datatype='string'>&quot;com.crowdstar.enterprise.covet&quot;</statistic>
+            <statistic aggregation='Max' datatype='string'>&quot;Top Stylist Android&quot;</statistic>
+          </statistics>
+          <attributes>
+            <attribute datatype='string' name='DebugRemoteCollation'>&quot;en_US_CI&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (comparable)'>true</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (compression)'>&quot;heap&quot;</attribute>
+            <attribute datatype='boolean' name='DebugRemoteMetadata (distinct)'>true</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (size)'>400</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (sort-position)'>1</attribute>
+            <attribute datatype='string' name='DebugRemoteMetadata (sort-sense)'>&quot;asc&quot;</attribute>
+            <attribute datatype='integer' name='DebugRemoteMetadata (storagewidth)'>2</attribute>
+            <attribute datatype='string' name='DebugRemoteType'>&quot;str&quot;</attribute>
+          </attributes>
+        </metadata-record>
+      </metadata-records>
+    </connection>
+  </extract>
+  <layout dim-ordering='alphabetic' dim-percentage='0.372299' measure-ordering='alphabetic' measure-percentage='0.384086' parameter-percentage='0.243615' show-structure='true' user-set-layout='true' />
+  <style>
+    <style-rule element='mark'>
+      <encoding attr='color' field='[:Measure Names]' palette='TUNE Primary' type='palette'>
+        <map to='#083e7f'>
+          <bucket>&quot;[Cohort_Revenue_Events-CohRevEve (copy)].[sum:events:qk]&quot;</bucket>
+        </map>
+        <map to='#535353'>
+          <bucket>&quot;[Cohort_Revenue_Events-CohRevEve (copy)].[cum:sum:events:qk:2]&quot;</bucket>
+        </map>
+        <map to='#535353'>
+          <bucket>&quot;[Cohort_Revenue_Events-CohRevEve (copy)].[cum:sum:revenue:qk:2]&quot;</bucket>
+        </map>
+        <map to='#535353'>
+          <bucket>&quot;[Cohort_Revenue_Events-CohRevEve (copy)].[sum:revenues:qk]&quot;</bucket>
+        </map>
+        <map to='#55aeff'>
+          <bucket>&quot;[Cohort_Revenue_Events-CohRevEve (copy)]&quot;</bucket>
+        </map>
+        <map to='#94ccff'>
+          <bucket>&quot;[Cohort_Revenue_Events-CohRevEve (copy)].[sum:reengagements:qk]&quot;</bucket>
+        </map>
+        <map to='#94ccff'>
+          <bucket>&quot;[Cohort_Revenue_Events-CohRevEve (copy)].[sum:reengeagements:qk]&quot;</bucket>
+        </map>
+      </encoding>
+    </style-rule>
+  </style>
+  <semantic-values>
+    <semantic-value key='[Country].[Name]' value='&quot;United States&quot;' />
+  </semantic-values>
+  <datasource-dependencies datasource='Parameters'>
+    <column caption='Max_Date' datatype='date' name='[Parameter 1]' param-domain-type='any' role='measure' type='quantitative' value='#2016-10-15#'>
+      <calculation class='tableau' formula='#2016-10-15#' />
+    </column>
+    <column caption='Min_Date' datatype='date' name='[Parameter 2]' param-domain-type='any' role='measure' type='quantitative' value='#2016-09-15#'>
+      <calculation class='tableau' formula='#2016-09-15#' />
+    </column>
+  </datasource-dependencies>
+</datasource>
